@@ -1,0 +1,12 @@
+(function() {
+    'use strict';
+
+
+    module.exports = {
+          database: 'test_row_restriction_service'
+        , user: 'postgres'
+        , pass: ''
+        , port: 5432
+        , host: ''
+    };
+})();
