@@ -1,5 +1,5 @@
 {
-      "name"                        : "row-restrictions"
+      "name"                        : "row-restrictions-service"
     , "description"                 : "Row Restrictions Service for Distributed"
     , "version"                     : "1.0.0"
     , "homepage"                    : "https://github.com/distributed-systems/row-restrictions"

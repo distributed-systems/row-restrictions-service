@@ -39,6 +39,9 @@
          */
         list(request, response) {
             const serviceName = this.getFilterValue(request.filter, 'service', 'identifier', '=');
+            const principalId = this.getFilterValue(request.filter, 'principal', 'id', '=');
+            const principalType = this.getFilterValue(request.filter, 'principalType', 'identifier', '=');
+            
 
             const query = this.db.rowRestriction('*');
 
@@ -50,7 +53,20 @@
             query.getValueType('identifier');
             query.getComparator('identifier');
             query.getService('identifier');
-            query.getPrincipal('*').getPrincipalType('identifier');
+
+
+            if (principalId) {
+                const principalQuery = query.getPrincipal('*', {
+                    principalId: principalId
+                });
+
+                if (principalType) {
+                    principalQuery.getPrincipalType('identifier', {
+                        identifier: principalType
+                    });
+                } else principalQuery.getPrincipalType('identifier');
+            } else query.getPrincipal('*').getPrincipalType('identifier');
+            
 
             query.find().then((restrictions) => {
                 
@@ -70,6 +86,7 @@
                     , value: restriction.value.value
                     , nullable: restriction.nullable
                     , global: restriction.global
+                    , id: restriction.id
                 })));
             }).catch(err => response.error('db_error', `Failed to load the restrictions!`, err));
         }
