@@ -12,7 +12,7 @@
     const config                    = require('./lib/relatedDBConfig');
     const log                       = require('ee-log');
     const assert                    = require('assert');
-    const Client                    = require('../lib/Client');
+    const Client                    = require('../index').Client;
 
 
 
