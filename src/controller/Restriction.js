@@ -70,7 +70,7 @@
 
             query.find().then((restrictions) => {
                 
-
+ 
                 // reformat
                 response.ok(restrictions.map((restriction) => ({
                     principals: restriction.principal.map(p => ({
@@ -148,7 +148,7 @@
                             }).then((service) => {
 
 
-                                // make sure all pricinpials exits
+                                // make sure all principal exits
                                 return Promise.all((restriction.principals || []).map((principal) => {
                                     return transaction.principal({principalId: principal.id}).getPrincipalType({identifier: principal.type}).findOne().then((prin) => {
                                         if (!prin) {
@@ -163,21 +163,40 @@
                                 })).then((principals) => {
 
 
-                                    // rceate the restirction already ...
-                                    return new transaction.rowRestriction({
-                                          valueType     : transaction.valueType({identifier: restriction.valueType})
-                                        , comparator    : transaction.comparator({identifier: restriction.comparator})
-                                        , action        : actions
-                                        , resource      : resources
-                                        , service       : service
-                                        , value         : {value: restriction.value}
-                                        , name          : restriction.name
-                                        , description   : restriction.description
-                                        , property      : restriction.property
-                                        , principal     : principals
-                                        , nullable      : !!restriction.nullable
-                                        , global        : !!restriction.global
-                                    }).save();
+                                    return transaction.rowRestriction('id', {
+                                        identifier: restriction.identifier
+                                    }).getPrincipal('id').findOne().then((existingRestriction) => {
+                                        if (existingRestriction) {
+
+
+                                            // add principals
+                                            const existing = new Set(existingRestriction.principal.map(p => p.id));
+
+                                            principals.forEach((principal) => {
+                                                if (!existing.has(principal.id)) existingRestriction.principal.push(principal);
+                                            });
+
+                                            return existingRestriction.save();
+                                        }
+                                        else {
+
+                                            // create a new restriction  ...
+                                            return new transaction.rowRestriction({
+                                                  valueType     : transaction.valueType({identifier: restriction.valueType})
+                                                , comparator    : transaction.comparator({identifier: restriction.comparator})
+                                                , action        : actions
+                                                , resource      : resources
+                                                , service       : service
+                                                , value         : {value: restriction.value}
+                                                , identifier    : restriction.identifier
+                                                , description   : restriction.description
+                                                , property      : restriction.property
+                                                , principal     : principals
+                                                , nullable      : !!restriction.nullable
+                                                , global        : !!restriction.global
+                                            }).save();
+                                        }
+                                    });
                                 });
                             });
                         });

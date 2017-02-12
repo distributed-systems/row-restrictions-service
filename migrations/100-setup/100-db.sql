@@ -115,13 +115,15 @@
         , "value"                       json not null
         , "nullable"                    boolean not null default false
         , "global"                      boolean not null default false
-        , "name"                        varchar(200) not null
+        , "identifier"                  varchar(200) not null
         , "description"                 text
         , "created"                     timestamp without time zone not null default now()
         , "updated"                     timestamp without time zone not null default now()
         , "deleted"                     timestamp without time zone
         , constraint "rowRestriction_pk"
             primary key ("id")
+        , constraint "rowRestriction_unique_identifier"
+            unique ("identifier")
         , constraint "rowRestriction_fk_valueType"
             foreign key ("id_valueType")
             references "valueType"("id")
