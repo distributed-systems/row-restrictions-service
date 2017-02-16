@@ -47,6 +47,7 @@
             this.autoLoad('valueType');
             this.autoLoad('principal');
             this.autoLoad('principalType');
+            this.autoLoad('principal_rowRestriction');
         }
 
 
