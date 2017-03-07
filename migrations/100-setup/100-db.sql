@@ -123,7 +123,7 @@
         , constraint "rowRestriction_pk"
             primary key ("id")
         , constraint "rowRestriction_unique_identifier"
-            unique ("identifier")
+            unique ("identifier", "id_service")
         , constraint "rowRestriction_fk_valueType"
             foreign key ("id_valueType")
             references "valueType"("id")

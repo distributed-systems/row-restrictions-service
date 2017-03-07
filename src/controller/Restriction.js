@@ -163,18 +163,34 @@
                                 })).then((principals) => {
 
 
+                                    // create row restriction
                                     return transaction.rowRestriction('id', {
-                                        identifier: restriction.identifier
-                                    }).getPrincipal('id').findOne().then((existingRestriction) => {
+                                          identifier: restriction.identifier
+                                        , id_service: service.id
+                                    }).fetchAction('id').fetchResource('id').getPrincipal('id').findOne().then((existingRestriction) => {
                                         if (existingRestriction) {
 
 
                                             // add principals
-                                            const existing = new Set(existingRestriction.principal.map(p => p.id));
-
+                                            const existingPrincipals = new Set(existingRestriction.principal.map(p => p.id));
                                             principals.forEach((principal) => {
-                                                if (!existing.has(principal.id)) existingRestriction.principal.push(principal);
+                                                if (!existingPrincipals.has(principal.id)) existingRestriction.principal.push(principal);
                                             });
+
+
+                                            // add actions
+                                            const existingActions = new Set(existingRestriction.action.map(a => a.id));
+                                            actions.forEach((action) => {
+                                                if (!existingActions.has(action.id)) existingRestriction.action.push(action);
+                                            });
+
+
+                                            // add resources
+                                            const existingResources = new Set(existingRestriction.resource.map(r => r.id));
+                                            resources.forEach((resource) => {
+                                                if (!existingResources.has(resource.id)) existingRestriction.resource.push(resource);
+                                            });
+
 
                                             return existingRestriction.save();
                                         }
