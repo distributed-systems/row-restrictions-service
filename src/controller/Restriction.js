@@ -109,16 +109,15 @@
 
             // check if there is valid payload
             if (Array.isArray(request.data)) {
-                const transaction = this.db.createTransaction();
 
                 Promise.all(request.data.map((restriction) => {
 
 
                     // make sure all resources exist
                     return Promise.all(restriction.resources.map((resource) => {
-                        return transaction.resource({identifier: resource}).findOne().then((res) => {
+                        return this.db.resource({identifier: resource}).findOne().then((res) => {
                             if (!res) {
-                                return new transaction.resource({
+                                return new this.db.resource({
                                     identifier: resource
                                 }).save();
                             } else return Promise.resolve(res);
@@ -128,9 +127,9 @@
 
                         // make sure all actions exist
                         return Promise.all(restriction.actions.map((action) => {
-                            return transaction.action({identifier: action}).findOne().then((act) => {
+                            return this.db.action({identifier: action}).findOne().then((act) => {
                                 if (!act) {
-                                    return new transaction.action({
+                                    return new this.db.action({
                                         identifier: action
                                     }).save();
                                 } else return Promise.resolve(act);
@@ -139,9 +138,9 @@
 
 
                             // make sure the service exists
-                            return transaction.service({identifier: restriction.service}).findOne().then((srv) => {
+                            return this.db.service({identifier: restriction.service}).findOne().then((srv) => {
                                 if (!srv) {
-                                    return new transaction.service({
+                                    return new this.db.service({
                                         identifier: restriction.service
                                     }).save();
                                 } else return Promise.resolve(srv);
@@ -150,11 +149,11 @@
 
                                 // make sure all principal exits
                                 return Promise.all((restriction.principals || []).map((principal) => {
-                                    return transaction.principal({principalId: principal.id}).getPrincipalType({identifier: principal.type}).findOne().then((prin) => {
+                                    return this.db.principal({principalId: principal.id}).getPrincipalType({identifier: principal.type}).findOne().then((prin) => {
                                         if (!prin) {
-                                            return new transaction.principal({
+                                            return new this.db.principal({
                                                   principalId: principal.id
-                                                , principalType: transaction.principalType({
+                                                , principalType: this.db.principalType({
                                                     identifier: principal.type
                                                 })
                                             }).save();
@@ -164,7 +163,7 @@
 
 
                                     // create row restriction
-                                    return transaction.rowRestriction('id', {
+                                    return this.db.rowRestriction('id', {
                                           identifier: restriction.identifier
                                         , id_service: service.id
                                     }).fetchAction('id').fetchResource('id').getPrincipal('id').findOne().then((existingRestriction) => {
@@ -197,9 +196,9 @@
                                         else {
 
                                             // create a new restriction  ...
-                                            return new transaction.rowRestriction({
-                                                  valueType     : transaction.valueType({identifier: restriction.valueType})
-                                                , comparator    : transaction.comparator({identifier: restriction.comparator})
+                                            return new this.db.rowRestriction({
+                                                  valueType     : this.db.valueType({identifier: restriction.valueType})
+                                                , comparator    : this.db.comparator({identifier: restriction.comparator})
                                                 , action        : actions
                                                 , resource      : resources
                                                 , service       : service
@@ -219,17 +218,9 @@
                     });
                 })).then((restrictions) => {
 
-                    // commit
-                    return transaction.commit().then(() => {
-
-                        // done
-                        response.created(restrictions.map(r => r.id));
-                    });
+                    // done
+                    response.created(restrictions.map(r => r.id));
                 }).catch((err) => {
-
-                    // roll back but dont wait for that
-                    transaction.rollback();
-
                     response.error('db_error', `Failed to create restriction(s)!`, err);
                 });
             } else return response.badRequest('missing_payload', `Cannot create restriction, the payload is missing!`);

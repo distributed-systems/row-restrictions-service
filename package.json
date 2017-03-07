@@ -1,7 +1,7 @@
 {
       "name"                        : "row-restrictions-service"
     , "description"                 : "Row Restrictions Service for Distributed"
-    , "version"                     : "1.2.0"
+    , "version"                     : "1.2.1"
     , "homepage"                    : "https://github.com/distributed-systems/row-restrictions"
     , "author"                      : "Michael van der Weg <michael@joinbox.com> (http://joinbox.com/)"
     , "repository": {
